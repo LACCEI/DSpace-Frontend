@@ -13,7 +13,8 @@ import { FeedbackFormComponent } from './feedback/feedback-form/feedback-form.co
 import { ThemedFeedbackFormComponent } from './feedback/feedback-form/themed-feedback-form.component';
 import { ThemedFeedbackComponent } from './feedback/themed-feedback.component';
 import { FeedbackGuard } from '../core/feedback/feedback.guard';
-
+import { ContactUsComponent } from './contact-us/contact-us.component';
+import { ThemedContactUsComponent } from './contact-us/themed-contact-us.component';
 
 const DECLARATIONS = [
   EndUserAgreementComponent,
@@ -25,22 +26,15 @@ const DECLARATIONS = [
   FeedbackComponent,
   FeedbackFormComponent,
   ThemedFeedbackFormComponent,
-  ThemedFeedbackComponent
+  ThemedFeedbackComponent,
+  ContactUsComponent,
+  ThemedContactUsComponent,
 ];
 
 @NgModule({
-  imports: [
-    CommonModule,
-    SharedModule,
-    InfoRoutingModule,
-  ],
-  declarations: [
-    ...DECLARATIONS
-  ],
-  exports: [
-    ...DECLARATIONS
-  ],
-  providers: [FeedbackGuard]
+  imports: [CommonModule, SharedModule, InfoRoutingModule],
+  declarations: [...DECLARATIONS],
+  exports: [...DECLARATIONS],
+  providers: [FeedbackGuard],
 })
-export class InfoModule {
-}
+export class InfoModule {}
