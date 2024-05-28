@@ -1,6 +1,14 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
-import { combineLatest as observableCombineLatest, combineLatest, Observable } from 'rxjs';
+import {
+  ActivatedRouteSnapshot,
+  Resolve,
+  RouterStateSnapshot,
+} from '@angular/router';
+import {
+  combineLatest as observableCombineLatest,
+  combineLatest,
+  Observable,
+} from 'rxjs';
 import { MenuID } from './shared/menu/menu-id.model';
 import { MenuState } from './shared/menu/menu-state.model';
 import { MenuItemType } from './shared/menu/menu-item-type.model';
@@ -15,45 +23,29 @@ import { MenuService } from './shared/menu/menu.service';
 import { filter, find, map, take } from 'rxjs/operators';
 import { hasValue } from './shared/empty.util';
 import { FeatureID } from './core/data/feature-authorization/feature-id';
-import {
-  ThemedCreateCommunityParentSelectorComponent
-} from './shared/dso-selector/modal-wrappers/create-community-parent-selector/themed-create-community-parent-selector.component';
+import { ThemedCreateCommunityParentSelectorComponent } from './shared/dso-selector/modal-wrappers/create-community-parent-selector/themed-create-community-parent-selector.component';
 import { OnClickMenuItemModel } from './shared/menu/menu-item/models/onclick.model';
-import {
-  ThemedCreateCollectionParentSelectorComponent
-} from './shared/dso-selector/modal-wrappers/create-collection-parent-selector/themed-create-collection-parent-selector.component';
-import {
-  ThemedCreateItemParentSelectorComponent
-} from './shared/dso-selector/modal-wrappers/create-item-parent-selector/themed-create-item-parent-selector.component';
-import {
-  ThemedEditCommunitySelectorComponent
-} from './shared/dso-selector/modal-wrappers/edit-community-selector/themed-edit-community-selector.component';
-import {
-  ThemedEditCollectionSelectorComponent
-} from './shared/dso-selector/modal-wrappers/edit-collection-selector/themed-edit-collection-selector.component';
-import {
-  ThemedEditItemSelectorComponent
-} from './shared/dso-selector/modal-wrappers/edit-item-selector/themed-edit-item-selector.component';
-import {
-  ExportMetadataSelectorComponent
-} from './shared/dso-selector/modal-wrappers/export-metadata-selector/export-metadata-selector.component';
+import { ThemedCreateCollectionParentSelectorComponent } from './shared/dso-selector/modal-wrappers/create-collection-parent-selector/themed-create-collection-parent-selector.component';
+import { ThemedCreateItemParentSelectorComponent } from './shared/dso-selector/modal-wrappers/create-item-parent-selector/themed-create-item-parent-selector.component';
+import { ThemedEditCommunitySelectorComponent } from './shared/dso-selector/modal-wrappers/edit-community-selector/themed-edit-community-selector.component';
+import { ThemedEditCollectionSelectorComponent } from './shared/dso-selector/modal-wrappers/edit-collection-selector/themed-edit-collection-selector.component';
+import { ThemedEditItemSelectorComponent } from './shared/dso-selector/modal-wrappers/edit-item-selector/themed-edit-item-selector.component';
+import { ExportMetadataSelectorComponent } from './shared/dso-selector/modal-wrappers/export-metadata-selector/export-metadata-selector.component';
 import { AuthorizationDataService } from './core/data/feature-authorization/authorization-data.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import {
   METADATA_EXPORT_SCRIPT_NAME,
   METADATA_IMPORT_SCRIPT_NAME,
-  ScriptDataService
+  ScriptDataService,
 } from './core/data/processes/script-data.service';
-import {
-  ExportBatchSelectorComponent
-} from './shared/dso-selector/modal-wrappers/export-batch-selector/export-batch-selector.component';
+import { ExportBatchSelectorComponent } from './shared/dso-selector/modal-wrappers/export-batch-selector/export-batch-selector.component';
 import { PUBLICATION_CLAIMS_PATH } from './admin/admin-notifications/admin-notifications-routing-paths';
 
 /**
  * Creates all of the app's menus
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MenuResolver implements Resolve<boolean> {
   constructor(
@@ -62,19 +54,19 @@ export class MenuResolver implements Resolve<boolean> {
     protected authorizationService: AuthorizationDataService,
     protected modalService: NgbModal,
     protected scriptDataService: ScriptDataService,
-  ) {
-  }
+  ) {}
 
   /**
    * Initialize all menus
    */
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
+  resolve(
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot,
+  ): Observable<boolean> {
     return combineLatest([
       this.createPublicMenu$(),
       this.createAdminMenu$(),
-    ]).pipe(
-      map((menusDone: boolean[]) => menusDone.every(Boolean)),
-    );
+    ]).pipe(map((menusDone: boolean[]) => menusDone.every(Boolean)));
   }
 
   /**
@@ -103,46 +95,56 @@ export class MenuResolver implements Resolve<boolean> {
         model: {
           type: MenuItemType.LINK,
           text: `menu.section.browse_global_communities_and_collections`,
-          link: `/community-list`
-        } as LinkMenuItemModel
-      }
+          link: `/community-list`,
+        } as LinkMenuItemModel,
+      },
     ];
     // Read the different Browse-By types from config and add them to the browse menu
-    this.browseService.getBrowseDefinitions()
+    this.browseService
+      .getBrowseDefinitions()
       .pipe(getFirstCompletedRemoteData<PaginatedList<BrowseDefinition>>())
-      .subscribe((browseDefListRD: RemoteData<PaginatedList<BrowseDefinition>>) => {
-        if (browseDefListRD.hasSucceeded) {
-          browseDefListRD.payload.page.forEach((browseDef: BrowseDefinition) => {
-            menuList.push({
-              id: `browse_global_by_${browseDef.id}`,
-              parentID: 'browse_global',
-              active: false,
-              visible: true,
-              model: {
-                type: MenuItemType.LINK,
-                text: `menu.section.browse_global_by_${browseDef.id}`,
-                link: `/browse/${browseDef.id}`
-              } as LinkMenuItemModel
-            });
-          });
-          menuList.push(
-            /* Browse */
-            {
-              id: 'browse_global',
-              active: false,
-              visible: true,
-              index: 1,
-              model: {
-                type: MenuItemType.TEXT,
-                text: 'menu.section.browse_global'
-              } as TextMenuItemModel,
-            }
+      .subscribe(
+        (browseDefListRD: RemoteData<PaginatedList<BrowseDefinition>>) => {
+          if (browseDefListRD.hasSucceeded) {
+            browseDefListRD.payload.page.forEach(
+              (browseDef: BrowseDefinition) => {
+                menuList.push({
+                  id: `browse_global_by_${browseDef.id}`,
+                  parentID: 'browse_global',
+                  active: false,
+                  visible: true,
+                  model: {
+                    type: MenuItemType.LINK,
+                    text: `menu.section.browse_global_by_${browseDef.id}`,
+                    link: `/browse/${browseDef.id}`,
+                  } as LinkMenuItemModel,
+                });
+              },
+            );
+            menuList.push(
+              /* Browse */
+              {
+                id: 'browse_global',
+                active: false,
+                visible: true,
+                index: 1,
+                model: {
+                  type: MenuItemType.TEXT,
+                  text: 'menu.section.browse_global',
+                } as TextMenuItemModel,
+              },
+            );
+          }
+          menuList.forEach((menuSection) =>
+            this.menuService.addSection(
+              MenuID.PUBLIC,
+              Object.assign(menuSection, {
+                shouldPersistOnRouteChange: true,
+              }),
+            ),
           );
-        }
-        menuList.forEach((menuSection) => this.menuService.addSection(MenuID.PUBLIC, Object.assign(menuSection, {
-          shouldPersistOnRouteChange: true
-        })));
-      });
+        },
+      );
 
     return this.waitForMenu$(MenuID.PUBLIC);
   }
@@ -171,202 +173,219 @@ export class MenuResolver implements Resolve<boolean> {
       this.authorizationService.isAuthorized(FeatureID.AdministratorOf),
       this.authorizationService.isAuthorized(FeatureID.CanSubmit),
       this.authorizationService.isAuthorized(FeatureID.CanEditItem),
-    ]).subscribe(([isCollectionAdmin, isCommunityAdmin, isSiteAdmin, canSubmit, canEditItem]) => {
-      const newSubMenuList = [
-        {
-          id: 'new_community',
-          parentID: 'new',
+    ]).subscribe(
+      ([
+        isCollectionAdmin,
+        isCommunityAdmin,
+        isSiteAdmin,
+        canSubmit,
+        canEditItem,
+      ]) => {
+        const newSubMenuList = [
+          {
+            id: 'new_community',
+            parentID: 'new',
+            active: false,
+            visible: isCommunityAdmin,
+            model: {
+              type: MenuItemType.ONCLICK,
+              text: 'menu.section.new_community',
+              function: () => {
+                this.modalService.open(
+                  ThemedCreateCommunityParentSelectorComponent,
+                );
+              },
+            } as OnClickMenuItemModel,
+          },
+          {
+            id: 'new_collection',
+            parentID: 'new',
+            active: false,
+            visible: isCommunityAdmin,
+            model: {
+              type: MenuItemType.ONCLICK,
+              text: 'menu.section.new_collection',
+              function: () => {
+                this.modalService.open(
+                  ThemedCreateCollectionParentSelectorComponent,
+                );
+              },
+            } as OnClickMenuItemModel,
+          },
+          {
+            id: 'new_item',
+            parentID: 'new',
+            active: false,
+            visible: canSubmit,
+            model: {
+              type: MenuItemType.ONCLICK,
+              text: 'menu.section.new_item',
+              function: () => {
+                this.modalService.open(ThemedCreateItemParentSelectorComponent);
+              },
+            } as OnClickMenuItemModel,
+          },
+          {
+            id: 'new_process',
+            parentID: 'new',
+            active: false,
+            visible: isSiteAdmin,
+            model: {
+              type: MenuItemType.LINK,
+              text: 'menu.section.new_process',
+              link: '/processes/new',
+            } as LinkMenuItemModel,
+          },
+        ];
+        const editSubMenuList = [
+          /* Edit */
+          {
+            id: 'edit_community',
+            parentID: 'edit',
+            active: false,
+            visible: isCommunityAdmin,
+            model: {
+              type: MenuItemType.ONCLICK,
+              text: 'menu.section.edit_community',
+              function: () => {
+                this.modalService.open(ThemedEditCommunitySelectorComponent);
+              },
+            } as OnClickMenuItemModel,
+          },
+          {
+            id: 'edit_collection',
+            parentID: 'edit',
+            active: false,
+            visible: isCollectionAdmin,
+            model: {
+              type: MenuItemType.ONCLICK,
+              text: 'menu.section.edit_collection',
+              function: () => {
+                this.modalService.open(ThemedEditCollectionSelectorComponent);
+              },
+            } as OnClickMenuItemModel,
+          },
+          {
+            id: 'edit_item',
+            parentID: 'edit',
+            active: false,
+            visible: canEditItem,
+            model: {
+              type: MenuItemType.ONCLICK,
+              text: 'menu.section.edit_item',
+              function: () => {
+                this.modalService.open(ThemedEditItemSelectorComponent);
+              },
+            } as OnClickMenuItemModel,
+          },
+        ];
+        const newSubMenu = {
+          id: 'new',
           active: false,
-          visible: isCommunityAdmin,
+          visible: newSubMenuList.some((subMenu) => subMenu.visible),
           model: {
-            type: MenuItemType.ONCLICK,
-            text: 'menu.section.new_community',
-            function: () => {
-              this.modalService.open(ThemedCreateCommunityParentSelectorComponent);
-            }
-          } as OnClickMenuItemModel,
-        },
-        {
-          id: 'new_collection',
-          parentID: 'new',
+            type: MenuItemType.TEXT,
+            text: 'menu.section.new',
+          } as TextMenuItemModel,
+          icon: 'plus',
+          index: 0,
+        };
+        const editSubMenu = {
+          id: 'edit',
           active: false,
-          visible: isCommunityAdmin,
+          visible: editSubMenuList.some((subMenu) => subMenu.visible),
           model: {
-            type: MenuItemType.ONCLICK,
-            text: 'menu.section.new_collection',
-            function: () => {
-              this.modalService.open(ThemedCreateCollectionParentSelectorComponent);
-            }
-          } as OnClickMenuItemModel,
-        },
-        {
-          id: 'new_item',
-          parentID: 'new',
-          active: false,
-          visible: canSubmit,
-          model: {
-            type: MenuItemType.ONCLICK,
-            text: 'menu.section.new_item',
-            function: () => {
-              this.modalService.open(ThemedCreateItemParentSelectorComponent);
-            }
-          } as OnClickMenuItemModel,
-        },
-        {
-          id: 'new_process',
-          parentID: 'new',
-          active: false,
-          visible: isSiteAdmin,
-          model: {
-            type: MenuItemType.LINK,
-            text: 'menu.section.new_process',
-            link: '/processes/new'
-          } as LinkMenuItemModel,
-        },
-      ];
-      const editSubMenuList = [
-        /* Edit */
-        {
-          id: 'edit_community',
-          parentID: 'edit',
-          active: false,
-          visible: isCommunityAdmin,
-          model: {
-            type: MenuItemType.ONCLICK,
-            text: 'menu.section.edit_community',
-            function: () => {
-              this.modalService.open(ThemedEditCommunitySelectorComponent);
-            }
-          } as OnClickMenuItemModel,
-        },
-        {
-          id: 'edit_collection',
-          parentID: 'edit',
-          active: false,
-          visible: isCollectionAdmin,
-          model: {
-            type: MenuItemType.ONCLICK,
-            text: 'menu.section.edit_collection',
-            function: () => {
-              this.modalService.open(ThemedEditCollectionSelectorComponent);
-            }
-          } as OnClickMenuItemModel,
-        },
-        {
-          id: 'edit_item',
-          parentID: 'edit',
-          active: false,
-          visible: canEditItem,
-          model: {
-            type: MenuItemType.ONCLICK,
-            text: 'menu.section.edit_item',
-            function: () => {
-              this.modalService.open(ThemedEditItemSelectorComponent);
-            }
-          } as OnClickMenuItemModel,
-        },
-      ];
-      const newSubMenu = {
-        id: 'new',
-        active: false,
-        visible: newSubMenuList.some(subMenu => subMenu.visible),
-        model: {
-          type: MenuItemType.TEXT,
-          text: 'menu.section.new'
-        } as TextMenuItemModel,
-        icon: 'plus',
-        index: 0
-      };
-      const editSubMenu = {
-        id: 'edit',
-        active: false,
-        visible: editSubMenuList.some(subMenu => subMenu.visible),
-        model: {
-          type: MenuItemType.TEXT,
-          text: 'menu.section.edit'
-        } as TextMenuItemModel,
-        icon: 'pencil-alt',
-        index: 1
-      };
+            type: MenuItemType.TEXT,
+            text: 'menu.section.edit',
+          } as TextMenuItemModel,
+          icon: 'pencil-alt',
+          index: 1,
+        };
 
-      const menuList = [
-        ...newSubMenuList,
-        newSubMenu,
-        ...editSubMenuList,
-        editSubMenu,
-        // TODO: enable this menu item once the feature has been implemented
-        // {
-        //   id: 'new_item_version',
-        //   parentID: 'new',
-        //   active: false,
-        //   visible: true,
-        //   model: {
-        //     type: MenuItemType.LINK,
-        //     text: 'menu.section.new_item_version',
-        //     link: ''
-        //   } as LinkMenuItemModel,
-        // },
+        const menuList = [
+          ...newSubMenuList,
+          newSubMenu,
+          ...editSubMenuList,
+          editSubMenu,
+          // TODO: enable this menu item once the feature has been implemented
+          // {
+          //   id: 'new_item_version',
+          //   parentID: 'new',
+          //   active: false,
+          //   visible: true,
+          //   model: {
+          //     type: MenuItemType.LINK,
+          //     text: 'menu.section.new_item_version',
+          //     link: ''
+          //   } as LinkMenuItemModel,
+          // },
 
-        /* Statistics */
-        // TODO: enable this menu item once the feature has been implemented
-        // {
-        //   id: 'statistics_task',
-        //   active: false,
-        //   visible: true,
-        //   model: {
-        //     type: MenuItemType.LINK,
-        //     text: 'menu.section.statistics_task',
-        //     link: ''
-        //   } as LinkMenuItemModel,
-        //   icon: 'chart-bar',
-        //   index: 8
-        // },
+          /* Statistics */
+          // TODO: enable this menu item once the feature has been implemented
+          // {
+          //   id: 'statistics_task',
+          //   active: false,
+          //   visible: true,
+          //   model: {
+          //     type: MenuItemType.LINK,
+          //     text: 'menu.section.statistics_task',
+          //     link: ''
+          //   } as LinkMenuItemModel,
+          //   icon: 'chart-bar',
+          //   index: 8
+          // },
 
-        /* Control Panel */
-        // TODO: enable this menu item once the feature has been implemented
-        // {
-        //   id: 'control_panel',
-        //   active: false,
-        //   visible: isSiteAdmin,
-        //   model: {
-        //     type: MenuItemType.LINK,
-        //     text: 'menu.section.control_panel',
-        //     link: ''
-        //   } as LinkMenuItemModel,
-        //   icon: 'cogs',
-        //   index: 9
-        // },
+          /* Control Panel */
+          // TODO: enable this menu item once the feature has been implemented
+          // {
+          //   id: 'control_panel',
+          //   active: false,
+          //   visible: isSiteAdmin,
+          //   model: {
+          //     type: MenuItemType.LINK,
+          //     text: 'menu.section.control_panel',
+          //     link: ''
+          //   } as LinkMenuItemModel,
+          //   icon: 'cogs',
+          //   index: 9
+          // },
 
-        /* Processes */
-        {
-          id: 'processes',
-          active: false,
-          visible: isSiteAdmin,
-          model: {
-            type: MenuItemType.LINK,
-            text: 'menu.section.processes',
-            link: '/processes'
-          } as LinkMenuItemModel,
-          icon: 'terminal',
-          index: 10
-        },
-        {
-          id: 'health',
-          active: false,
-          visible: isSiteAdmin,
-          model: {
-            type: MenuItemType.LINK,
-            text: 'menu.section.health',
-            link: '/health'
-          } as LinkMenuItemModel,
-          icon: 'heartbeat',
-          index: 11
-        },
-      ];
-      menuList.forEach((menuSection) => this.menuService.addSection(MenuID.ADMIN, Object.assign(menuSection, {
-        shouldPersistOnRouteChange: true
-      })));
-    });
+          /* Processes */
+          {
+            id: 'processes',
+            active: false,
+            visible: isSiteAdmin,
+            model: {
+              type: MenuItemType.LINK,
+              text: 'menu.section.processes',
+              link: '/processes',
+            } as LinkMenuItemModel,
+            icon: 'terminal',
+            index: 10,
+          },
+          {
+            id: 'health',
+            active: false,
+            visible: isSiteAdmin,
+            model: {
+              type: MenuItemType.LINK,
+              text: 'menu.section.health',
+              link: '/health',
+            } as LinkMenuItemModel,
+            icon: 'heartbeat',
+            index: 11,
+          },
+        ];
+        menuList.forEach((menuSection) =>
+          this.menuService.addSection(
+            MenuID.ADMIN,
+            Object.assign(menuSection, {
+              shouldPersistOnRouteChange: true,
+            }),
+          ),
+        );
+      },
+    );
   }
 
   /**
@@ -415,59 +434,68 @@ export class MenuResolver implements Resolve<boolean> {
       //   shouldPersistOnRouteChange: true
       // },
     ];
-    menuList.forEach((menuSection) => this.menuService.addSection(MenuID.ADMIN, menuSection));
+    menuList.forEach((menuSection) =>
+      this.menuService.addSection(MenuID.ADMIN, menuSection),
+    );
 
     observableCombineLatest([
       this.authorizationService.isAuthorized(FeatureID.AdministratorOf),
-      this.scriptDataService.scriptWithNameExistsAndCanExecute(METADATA_EXPORT_SCRIPT_NAME)
-    ]).pipe(
-      filter(([authorized, metadataExportScriptExists]: boolean[]) => authorized && metadataExportScriptExists),
-      take(1)
-    ).subscribe(() => {
-      // Hides the export menu for unauthorised people
-      // If in the future more sub-menus are added,
-      // it should be reviewed if they need to be in this subscribe
-      this.menuService.addSection(MenuID.ADMIN, {
-        id: 'export',
-        active: false,
-        visible: true,
-        model: {
-          type: MenuItemType.TEXT,
-          text: 'menu.section.export'
-        } as TextMenuItemModel,
-        icon: 'file-export',
-        index: 3,
-        shouldPersistOnRouteChange: true
+      this.scriptDataService.scriptWithNameExistsAndCanExecute(
+        METADATA_EXPORT_SCRIPT_NAME,
+      ),
+    ])
+      .pipe(
+        filter(
+          ([authorized, metadataExportScriptExists]: boolean[]) =>
+            authorized && metadataExportScriptExists,
+        ),
+        take(1),
+      )
+      .subscribe(() => {
+        // Hides the export menu for unauthorised people
+        // If in the future more sub-menus are added,
+        // it should be reviewed if they need to be in this subscribe
+        this.menuService.addSection(MenuID.ADMIN, {
+          id: 'export',
+          active: false,
+          visible: true,
+          model: {
+            type: MenuItemType.TEXT,
+            text: 'menu.section.export',
+          } as TextMenuItemModel,
+          icon: 'file-export',
+          index: 3,
+          shouldPersistOnRouteChange: true,
+        });
+        this.menuService.addSection(MenuID.ADMIN, {
+          id: 'export_metadata',
+          parentID: 'export',
+          active: true,
+          visible: true,
+          model: {
+            type: MenuItemType.ONCLICK,
+            text: 'menu.section.export_metadata',
+            function: () => {
+              this.modalService.open(ExportMetadataSelectorComponent);
+            },
+          } as OnClickMenuItemModel,
+          shouldPersistOnRouteChange: true,
+        });
+        this.menuService.addSection(MenuID.ADMIN, {
+          id: 'export_batch',
+          parentID: 'export',
+          active: false,
+          visible: true,
+          model: {
+            type: MenuItemType.ONCLICK,
+            text: 'menu.section.export_batch',
+            function: () => {
+              this.modalService.open(ExportBatchSelectorComponent);
+            },
+          } as OnClickMenuItemModel,
+          shouldPersistOnRouteChange: true,
+        });
       });
-      this.menuService.addSection(MenuID.ADMIN, {
-        id: 'export_metadata',
-        parentID: 'export',
-        active: true,
-        visible: true,
-        model: {
-          type: MenuItemType.ONCLICK,
-          text: 'menu.section.export_metadata',
-          function: () => {
-            this.modalService.open(ExportMetadataSelectorComponent);
-          }
-        } as OnClickMenuItemModel,
-        shouldPersistOnRouteChange: true
-      });
-      this.menuService.addSection(MenuID.ADMIN, {
-        id: 'export_batch',
-        parentID: 'export',
-        active: false,
-        visible: true,
-        model: {
-          type: MenuItemType.ONCLICK,
-          text: 'menu.section.export_batch',
-          function: () => {
-            this.modalService.open(ExportBatchSelectorComponent);
-          }
-        } as OnClickMenuItemModel,
-        shouldPersistOnRouteChange: true
-      });
-    });
   }
 
   /**
@@ -476,55 +504,64 @@ export class MenuResolver implements Resolve<boolean> {
    */
   createImportMenuSections() {
     const menuList = [];
-    menuList.forEach((menuSection) => this.menuService.addSection(MenuID.ADMIN, menuSection));
+    menuList.forEach((menuSection) =>
+      this.menuService.addSection(MenuID.ADMIN, menuSection),
+    );
 
     observableCombineLatest([
       this.authorizationService.isAuthorized(FeatureID.AdministratorOf),
-      this.scriptDataService.scriptWithNameExistsAndCanExecute(METADATA_IMPORT_SCRIPT_NAME)
-    ]).pipe(
-      filter(([authorized, metadataImportScriptExists]: boolean[]) => authorized && metadataImportScriptExists),
-      take(1)
-    ).subscribe(() => {
-      // Hides the import menu for unauthorised people
-      // If in the future more sub-menus are added,
-      // it should be reviewed if they need to be in this subscribe
-      this.menuService.addSection(MenuID.ADMIN, {
-        id: 'import',
-        active: false,
-        visible: true,
-        model: {
-          type: MenuItemType.TEXT,
-          text: 'menu.section.import'
-        } as TextMenuItemModel,
-        icon: 'file-import',
-        index: 2,
-        shouldPersistOnRouteChange: true,
+      this.scriptDataService.scriptWithNameExistsAndCanExecute(
+        METADATA_IMPORT_SCRIPT_NAME,
+      ),
+    ])
+      .pipe(
+        filter(
+          ([authorized, metadataImportScriptExists]: boolean[]) =>
+            authorized && metadataImportScriptExists,
+        ),
+        take(1),
+      )
+      .subscribe(() => {
+        // Hides the import menu for unauthorised people
+        // If in the future more sub-menus are added,
+        // it should be reviewed if they need to be in this subscribe
+        this.menuService.addSection(MenuID.ADMIN, {
+          id: 'import',
+          active: false,
+          visible: true,
+          model: {
+            type: MenuItemType.TEXT,
+            text: 'menu.section.import',
+          } as TextMenuItemModel,
+          icon: 'file-import',
+          index: 2,
+          shouldPersistOnRouteChange: true,
+        });
+        this.menuService.addSection(MenuID.ADMIN, {
+          id: 'import_metadata',
+          parentID: 'import',
+          active: true,
+          visible: true,
+          model: {
+            type: MenuItemType.LINK,
+            text: 'menu.section.import_metadata',
+            link: '/admin/metadata-import',
+          } as LinkMenuItemModel,
+          shouldPersistOnRouteChange: true,
+        });
+        this.menuService.addSection(MenuID.ADMIN, {
+          id: 'import_batch',
+          parentID: 'import',
+          active: false,
+          visible: true,
+          model: {
+            type: MenuItemType.LINK,
+            text: 'menu.section.import_batch',
+            link: '/admin/batch-import',
+          } as LinkMenuItemModel,
+          shouldPersistOnRouteChange: true,
+        });
       });
-      this.menuService.addSection(MenuID.ADMIN, {
-        id: 'import_metadata',
-        parentID: 'import',
-        active: true,
-        visible: true,
-        model: {
-          type: MenuItemType.LINK,
-          text: 'menu.section.import_metadata',
-          link: '/admin/metadata-import'
-        } as LinkMenuItemModel,
-        shouldPersistOnRouteChange: true
-      });
-      this.menuService.addSection(MenuID.ADMIN, {
-        id: 'import_batch',
-        parentID: 'import',
-        active: false,
-        visible: true,
-        model: {
-          type: MenuItemType.LINK,
-          text: 'menu.section.import_batch',
-          link: '/admin/batch-import'
-        } as LinkMenuItemModel,
-        shouldPersistOnRouteChange: true
-      });
-    });
   }
 
   /**
@@ -533,9 +570,8 @@ export class MenuResolver implements Resolve<boolean> {
   createSiteAdministratorMenuSections() {
     combineLatest([
       this.authorizationService.isAuthorized(FeatureID.AdministratorOf),
-      this.authorizationService.isAuthorized(FeatureID.CanSeeQA)
-    ])
-    .subscribe(([authorized, canSeeQA]) => {
+      this.authorizationService.isAuthorized(FeatureID.CanSeeQA),
+    ]).subscribe(([authorized, canSeeQA]) => {
       const menuList = [
         /* Notifications */
         {
@@ -544,10 +580,10 @@ export class MenuResolver implements Resolve<boolean> {
           visible: authorized && canSeeQA,
           model: {
             type: MenuItemType.TEXT,
-            text: 'menu.section.notifications'
+            text: 'menu.section.notifications',
           } as TextMenuItemModel,
           icon: 'bell',
-          index: 4
+          index: 4,
         },
         {
           id: 'notifications_quality-assurance',
@@ -557,7 +593,7 @@ export class MenuResolver implements Resolve<boolean> {
           model: {
             type: MenuItemType.LINK,
             text: 'menu.section.quality-assurance',
-            link: '/admin/notifications/quality-assurance'
+            link: '/admin/notifications/quality-assurance',
           } as LinkMenuItemModel,
         },
         {
@@ -568,7 +604,7 @@ export class MenuResolver implements Resolve<boolean> {
           model: {
             type: MenuItemType.LINK,
             text: 'menu.section.notifications_publication-claim',
-            link: '/admin/notifications/' + PUBLICATION_CLAIMS_PATH
+            link: '/admin/notifications/' + PUBLICATION_CLAIMS_PATH,
           } as LinkMenuItemModel,
         },
         /*  Admin Search */
@@ -579,10 +615,10 @@ export class MenuResolver implements Resolve<boolean> {
           model: {
             type: MenuItemType.LINK,
             text: 'menu.section.admin_search',
-            link: '/admin/search'
+            link: '/admin/search',
           } as LinkMenuItemModel,
           icon: 'search',
-          index: 5
+          index: 5,
         },
         /*  Registries */
         {
@@ -591,10 +627,10 @@ export class MenuResolver implements Resolve<boolean> {
           visible: authorized,
           model: {
             type: MenuItemType.TEXT,
-            text: 'menu.section.registries'
+            text: 'menu.section.registries',
           } as TextMenuItemModel,
           icon: 'list',
-          index: 6
+          index: 6,
         },
         {
           id: 'registries_metadata',
@@ -604,7 +640,7 @@ export class MenuResolver implements Resolve<boolean> {
           model: {
             type: MenuItemType.LINK,
             text: 'menu.section.registries_metadata',
-            link: 'admin/registries/metadata'
+            link: 'admin/registries/metadata',
           } as LinkMenuItemModel,
         },
         {
@@ -615,7 +651,7 @@ export class MenuResolver implements Resolve<boolean> {
           model: {
             type: MenuItemType.LINK,
             text: 'menu.section.registries_format',
-            link: 'admin/registries/bitstream-formats'
+            link: 'admin/registries/bitstream-formats',
           } as LinkMenuItemModel,
         },
 
@@ -627,10 +663,10 @@ export class MenuResolver implements Resolve<boolean> {
           model: {
             type: MenuItemType.LINK,
             text: 'menu.section.curation_task',
-            link: 'admin/curation-tasks'
+            link: 'admin/curation-tasks',
           } as LinkMenuItemModel,
           icon: 'filter',
-          index: 7
+          index: 7,
         },
 
         /* Workflow */
@@ -641,10 +677,10 @@ export class MenuResolver implements Resolve<boolean> {
           model: {
             type: MenuItemType.LINK,
             text: 'menu.section.workflow',
-            link: '/admin/workflow'
+            link: '/admin/workflow',
           } as LinkMenuItemModel,
           icon: 'user-check',
-          index: 11
+          index: 11,
         },
         {
           id: 'system_wide_alert',
@@ -653,16 +689,21 @@ export class MenuResolver implements Resolve<boolean> {
           model: {
             type: MenuItemType.LINK,
             text: 'menu.section.system-wide-alert',
-            link: '/admin/system-wide-alert'
+            link: '/admin/system-wide-alert',
           } as LinkMenuItemModel,
           icon: 'exclamation-circle',
-          index: 12
+          index: 12,
         },
       ];
 
-      menuList.forEach((menuSection) => this.menuService.addSection(MenuID.ADMIN, Object.assign(menuSection, {
-        shouldPersistOnRouteChange: true
-      })));
+      menuList.forEach((menuSection) =>
+        this.menuService.addSection(
+          MenuID.ADMIN,
+          Object.assign(menuSection, {
+            shouldPersistOnRouteChange: true,
+          }),
+        ),
+      );
     });
   }
 
@@ -672,7 +713,7 @@ export class MenuResolver implements Resolve<boolean> {
   createAccessControlMenuSections() {
     observableCombineLatest([
       this.authorizationService.isAuthorized(FeatureID.AdministratorOf),
-      this.authorizationService.isAuthorized(FeatureID.CanManageGroups)
+      this.authorizationService.isAuthorized(FeatureID.CanManageGroups),
     ]).subscribe(([isSiteAdmin, canManageGroups]) => {
       const menuList = [
         /* Access Control */
@@ -684,7 +725,7 @@ export class MenuResolver implements Resolve<boolean> {
           model: {
             type: MenuItemType.LINK,
             text: 'menu.section.access_control_people',
-            link: '/access-control/epeople'
+            link: '/access-control/epeople',
           } as LinkMenuItemModel,
         },
         {
@@ -695,7 +736,7 @@ export class MenuResolver implements Resolve<boolean> {
           model: {
             type: MenuItemType.LINK,
             text: 'menu.section.access_control_groups',
-            link: '/access-control/groups'
+            link: '/access-control/groups',
           } as LinkMenuItemModel,
         },
         {
@@ -706,7 +747,7 @@ export class MenuResolver implements Resolve<boolean> {
           model: {
             type: MenuItemType.LINK,
             text: 'menu.section.access_control_bulk',
-            link: '/access-control/bulk-access'
+            link: '/access-control/bulk-access',
           } as LinkMenuItemModel,
         },
         // TODO: enable this menu item once the feature has been implemented
@@ -727,16 +768,21 @@ export class MenuResolver implements Resolve<boolean> {
           visible: canManageGroups || isSiteAdmin,
           model: {
             type: MenuItemType.TEXT,
-            text: 'menu.section.access_control'
+            text: 'menu.section.access_control',
           } as TextMenuItemModel,
           icon: 'key',
-          index: 4
+          index: 4,
         },
       ];
 
-      menuList.forEach((menuSection) => this.menuService.addSection(MenuID.ADMIN, Object.assign(menuSection, {
-        shouldPersistOnRouteChange: true,
-      })));
+      menuList.forEach((menuSection) =>
+        this.menuService.addSection(
+          MenuID.ADMIN,
+          Object.assign(menuSection, {
+            shouldPersistOnRouteChange: true,
+          }),
+        ),
+      );
     });
   }
 }

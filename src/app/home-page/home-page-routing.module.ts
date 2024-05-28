@@ -16,28 +16,38 @@ import { MenuItemType } from '../shared/menu/menu-item-type.model';
         data: {
           title: 'home.title',
           menu: {
-            public: [{
-              id: 'statistics_site',
-              active: true,
-              visible: true,
-              index: 2,
-              model: {
-                type: MenuItemType.LINK,
-                text: 'menu.section.statistics',
-                link: 'statistics',
-              } as LinkMenuItemModel,
-            }],
+            public: [
+              {
+                id: 'statistics_site',
+                active: true,
+                visible: true,
+                index: 2,
+                model: {
+                  type: MenuItemType.LINK,
+                  text: 'menu.section.statistics',
+                  link: 'statistics',
+                } as LinkMenuItemModel,
+              },
+              {
+                id: 'contact_us',
+                active: true,
+                visible: true,
+                index: 3,
+                model: {
+                  type: MenuItemType.LINK,
+                  text: 'Contact Us',
+                  link: '/info/contact-us',
+                } as LinkMenuItemModel,
+              },
+            ],
           },
         },
         resolve: {
-          site: HomePageResolver
-        }
-      }
-    ])
+          site: HomePageResolver,
+        },
+      },
+    ]),
   ],
-  providers: [
-    HomePageResolver
-  ]
+  providers: [HomePageResolver],
 })
-export class HomePageRoutingModule {
-}
+export class HomePageRoutingModule {}
